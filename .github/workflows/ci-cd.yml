@@ -6,7 +6,7 @@ on:
       - main
       - stage
     paths:
-      - 'terraform/**'  # Only trigger when files in terraform/ change
+      - 'terraform/**'  # Trigger only on Terraform directory changes
 
 env:
   AWS_REGION: us-east-1
@@ -41,8 +41,6 @@ jobs:
     name: Deploy AWS Infrastructure
     needs: lint-and-security
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -60,23 +58,23 @@ jobs:
           terraform_version: 1.0.0
 
       - name: Terraform Init
-        run: terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform init -backend-config="./environments/${{ env.TF_VAR_environment }}.backend"
 
       - name: Terraform Plan
-        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.aws_vpc -target=module.aws_eks -target=module.aws_rds
+        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.aws_vpc -target=module.aws_eks -target=module.aws_rds
+        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 AWS Deployment Failed! Check the logs."}' ${{ secrets.SLACK_WEBHOOK_URL }}
 
   deploy-gcp:
     name: Deploy GCP Infrastructure
     needs: lint-and-security
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -93,20 +91,23 @@ jobs:
           terraform_version: 1.0.0
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config="./environments/${{ env.TF_VAR_environment }}.backend"
 
       - name: Terraform Plan
-        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.gcp_vpc -target=module.gcp_gke -target=module.gcp_cloudsql
+        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.gcp_vpc -target=module.gcp_gke -target=module.gcp_cloudsql
+        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 GCP Deployment Failed! Check the logs."}' ${{ secrets.SLACK_WEBHOOK_URL }}
 
   post-deployment-tests:
     name: Post-Deployment Tests
     needs: [deploy-aws, deploy-gcp]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
-
     steps:
       - name: Check AWS API Health
         run: |
@@ -129,4 +130,4 @@ jobs:
       - name: Notify on Success
         if: success()
         run: |
-          echo "All deployments and health checks completed successfully"
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"✅ Multi-Cloud Deployment Successful!"}' ${{ secrets.SLACK_WEBHOOK_URL }}
