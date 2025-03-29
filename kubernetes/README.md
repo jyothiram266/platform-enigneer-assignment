@@ -1,5 +1,7 @@
 # **Istio + Cert-Manager Setup on EKS and GKE**  
 
+![architecture](../screenshots/Screenshot%20from%202025-03-29%2023-44-44.png)
+
 ## **1. Prerequisites**  
 Ensure you have:  
 - **EKS and GKE clusters ready**  
