@@ -1,0 +1,132 @@
+name: Multi-Cloud Infrastructure CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - stage
+    paths:
+      - 'terraform/**'  # Only trigger when files in terraform/ change
+
+env:
+  AWS_REGION: us-east-1
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  TF_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'stage' }}
+
+jobs:
+  lint-and-security:
+    name: Lint and Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          quiet: true
+          soft_fail: false
+
+  deploy-aws:
+    name: Deploy AWS Infrastructure
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.aws_vpc -target=module.aws_eks -target=module.aws_rds
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.aws_vpc -target=module.aws_eks -target=module.aws_rds
+
+  deploy-gcp:
+    name: Deploy GCP Infrastructure
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.gcp_vpc -target=module.gcp_gke -target=module.gcp_cloudsql
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file=./environments/${{ env.TF_VAR_environment }}.tfvars -target=module.gcp_vpc -target=module.gcp_gke -target=module.gcp_cloudsql
+
+  post-deployment-tests:
+    name: Post-Deployment Tests
+    needs: [deploy-aws, deploy-gcp]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stage'
+
+    steps:
+      - name: Check AWS API Health
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://my-api-endpoint.aws.com/health)
+          if [ "$response" != "200" ]; then
+            echo "AWS API health check failed with status: $response"
+            exit 1
+          fi
+          echo "AWS API health check passed"
+
+      - name: Check GCP API Health
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://my-api-endpoint.gcp.com/health)
+          if [ "$response" != "200" ]; then
+            echo "GCP API health check failed with status: $response"
+            exit 1
+          fi
+          echo "GCP API health check passed"
+
+      - name: Notify on Success
+        if: success()
+        run: |
+          echo "All deployments and health checks completed successfully"
