@@ -159,14 +159,10 @@ Contains Infrastructure as Code (IaC) configurations using Terraform.
 |-----------|-------------|-------------|
 | `cost-optimisation/` | Strategies and documentation for cost optimization. | [README.md](cost-optimisation/README.md) |
 | `kubernetes/` | Contains Kubernetes manifests and configurations. | [README.md](kubernetes/README.md) |
+| `ci-cd/` | Kubernetes deployment manifests. | [README.md](.github/workflows/README.md) |
 | `monitoring/` | Monitoring configurations for Grafana and Prometheus. | [README.md](monitoring/README.md) |
 | `Prompts/` | Contains prompt templates or automation-related guidelines. | [README.md](Prompts/README.md) |
 | `serverless/` | Contains serverless functions and related configurations. | [README.md](serverless/README.md) |
 | `terraform/` | Infrastructure as Code (IaC) configurations using Terraform. | [README.md](terraform/README.md) |
-
-
-
-This document provides an overview of the directory structure and links to relevant README files for detailed documentation. 🚀
-
 
 ---
