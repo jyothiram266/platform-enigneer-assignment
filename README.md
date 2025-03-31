@@ -164,5 +164,6 @@ Contains Infrastructure as Code (IaC) configurations using Terraform.
 | `Prompts/` | Contains prompt templates or automation-related guidelines. | [README.md](Prompts/README.md) |
 | `serverless/` | Contains serverless functions and related configurations. | [README.md](serverless/README.md) |
 | `terraform/` | Infrastructure as Code (IaC) configurations using Terraform. | [README.md](terraform/README.md) |
+| `Script/` | Bash script automates Terraform deployments across AWS and GCP | [README.md](script/README.md) |
 
 ---
