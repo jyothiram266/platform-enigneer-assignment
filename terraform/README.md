@@ -2,11 +2,23 @@
 
 This repository implements a production-grade multi-cloud infrastructure across AWS and Google Cloud Platform (GCP). Our infrastructure architecture prioritizes high availability, security, and scalability through strategic deployment of cloud-native services.
 
+## Why This Setup?
+
+Managing a scalable and resilient infrastructure across multiple cloud providers offers several advantages:
+- **High Availability**: Redundant systems across AWS and GCP minimize downtime.
+- **Cost Optimization**: Leveraging cloud-native services helps reduce operational costs.
+- **Vendor Neutrality**: Avoid dependency on a single cloud provider.
+- **Performance Optimization**: Deploy workloads in the best-suited environment for efficiency.
+- **Security & Compliance**: Multi-layered security approach with encryption and IAM policies.
+
 ## Infrastructure Overview
 
 Our AWS infrastructure centers around a Virtual Private Cloud (VPC) with a 10.0.0.0/16 CIDR block, featuring both public and private subnets across multiple availability zones. The network architecture implements NAT Gateways for secure outbound access from private resources while maintaining strict security boundaries. Within this network, we deploy an Elastic Kubernetes Service (EKS) cluster running on t3.medium instances, configured for auto-scaling between 2-4 nodes to handle varying workloads efficiently. For data persistence, we utilize a multi-AZ PostgreSQL RDS deployment with KMS encryption and automated backup systems.
 
 The GCP infrastructure mirrors this robust architecture with a 172.16.0.0/16 VPC implementation. Our Google Kubernetes Engine (GKE) cluster operates on n1-standard-2 machines with similar auto-scaling capabilities. The Cloud SQL instance provides PostgreSQL services with high availability configuration and private IP access, ensuring data security and consistent performance.
+
+### High-Level Architecture Diagram
+![architecture](../screenshots/image.png)
 
 ## Logging and Monitoring Strategy
 
@@ -18,22 +30,127 @@ GCP's logging implementation leverages the Cloud Logging agent for application l
 
 Security is implemented through multiple layers across our infrastructure. Network security utilizes private subnets for sensitive resources, with carefully configured security groups and firewall rules controlling access. Data security implements encryption at rest through KMS in both clouds, along with TLS encryption for data in transit. Access control follows the principle of least privilege, using IAM roles and service accounts for precise permission management, while Kubernetes clusters implement RBAC and network policies for workload security.
 
-## Deployment and Operations
+## 🏗 Infrastructure Components
 
-Infrastructure deployment follows a streamlined workflow using Terraform. Prerequisites include properly configured AWS and GCP credentials, Terraform 1.0.0 or higher, and the respective cloud CLIs. Deployment proceeds through a standard Terraform workflow of initialization, planning, and application, followed by post-deployment tasks such as kubectl configuration and monitoring setup.
+### AWS Infrastructure
 
-Operational maintenance encompasses regular resource utilization monitoring, security log reviews, and patch management. Our backup strategy includes daily RDS snapshots, Cloud SQL point-in-time recovery, Kubernetes state backups via Velero, and versioned state files in S3. Scaling is handled through auto-scaling configurations at both the infrastructure and application levels, with careful consideration given to resource optimization and cost management.
+#### VPC Configuration
+- VPC with `/16` CIDR block
+- 2 public and 2 private subnets across different availability zones
+- Internet Gateway and NAT Gateway for outbound access
+- Secure routing tables and network ACLs
 
-## Cost Management and Disaster Recovery
+#### EKS (Elastic Kubernetes Service)
+- Managed Kubernetes cluster with 2 worker nodes
+- Auto-scaling enabled for worker nodes
+- IAM roles with least privilege access
+- Secure pod networking
 
-Cost optimization is achieved through right-sized instances, strategic use of auto-scaling, and implementation of reserved instances for predictable workloads. We maintain active monitoring of resource utilization and costs through budget alerts, usage thresholds, and regular cost analysis reviews.
+#### RDS (PostgreSQL)
+- PostgreSQL instance in private subnet
+- Encryption at rest using AWS KMS
+- Automated backups enabled
+- Restricted security group access
 
-Our disaster recovery strategy encompasses comprehensive backup procedures including database snapshots, configuration backups, and state file versioning. Recovery procedures are well-documented and regularly tested, covering database restoration, cluster rebuilding, and application redeployment processes.
+#### S3 Storage
+- S3 bucket for Terraform state
+- Versioning enabled
+- Server-side encryption
+- DynamoDB table for state locking
 
-## Future Development
+### GCP Infrastructure
 
-Our infrastructure roadmap includes several key improvements focused on technical debt reduction and feature enhancement. Technical priorities include service mesh implementation, enhanced monitoring systems, and automated testing frameworks. Feature additions will focus on multi-region deployment capabilities, enhanced backup solutions, and advanced security implementations. We maintain a strong emphasis on infrastructure as code principles and continuous improvement of our cloud architecture.
+#### VPC Configuration
+- VPC with dedicated subnets
+- Private Google Access enabled
+- Secure firewall rules
 
-## Support and Maintenance
+#### GKE (Google Kubernetes Engine)
+- Managed Kubernetes cluster
+- Node auto-scaling
+- Private cluster configuration
+- Workload Identity enabled
 
-The infrastructure includes robust monitoring checks covering service health, resource utilization, error rates, and latency metrics. Common operational challenges such as network connectivity issues, permission errors, and resource limits are well-documented with clear resolution procedures. Regular maintenance tasks ensure system reliability and security, while continuous monitoring enables proactive issue resolution and system optimization.
+#### Cloud SQL (PostgreSQL)
+- PostgreSQL instance in private subnet
+- Automated backups
+- Encryption enabled
+- Private service access
+
+## 📊 Monitoring & Observability
+
+### Logging Setup
+
+#### AWS CloudWatch
+- Log group: `eks-logs`
+- 7-day retention period
+- Structured logging
+
+#### GCP Cloud Logging
+- Log sink: `gke-logs`
+- Cloud Storage bucket integration
+- Automated log routing
+
+## 🛠 Setup Instructions
+
+### Prerequisites
+- AWS CLI configured
+- GCloud SDK installed
+- Terraform >= 1.0.0
+- kubectl installed
+- Helm 3.x
+
+### Infrastructure Deployment
+
+1. Initialize Terraform:
+```bash
+terraform init
+```
+
+2. Create terraform.tfvars file:
+```bash
+cp terraform.tfvars.example terraform.tfvars
+# Edit variables as needed
+```
+
+3. Deploy infrastructure:
+```bash
+terraform apply -var-file=terraform.tfvars
+```
+
+### Monitoring Setup
+
+1. Deploy Prometheus stack:
+```bash
+helm install prometheus prometheus-community/kube-prometheus-stack -f kubernetes/prometheus/values.yaml
+```
+
+2. Access Grafana:
+```bash
+kubectl port-forward svc/prometheus-grafana 3000:80
+```
+
+3. Import dashboards from `monitoring/grafana/grafana-dash.json`
+
+## 🔐 Security Features
+
+- IAM roles with least privilege
+- Network isolation
+- Encryption at rest
+- Private subnets for sensitive resources
+- Security group restrictions
+- Regular security scanning
+
+## 📝 Maintenance
+
+### Backup Strategy
+- Automated RDS backups
+- Cloud SQL automated backups
+- S3 versioning
+- State file backups
+
+### Scaling Guidelines
+- Node auto-scaling configuration
+- Database scaling procedures
+- Storage scaling recommendations
+

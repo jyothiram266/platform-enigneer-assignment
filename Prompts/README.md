@@ -1,49 +1,35 @@
 This is are the Refined prompts i have used for creating the infra:   
 
-### **1️⃣ Terraform Code Generation**  
-*"Generate Terraform code for a multi-cloud infrastructure deployment across AWS and GCP. Follow best practices for security, scalability, and automation. Ensure the code is modular using Terraform modules and includes appropriate outputs for key resources."*  
+Here's a more conversational, human-friendly version of those prompts:
 
-#### **AWS Resources:**  
-- **VPC:** Create a `/16` CIDR block with 2 public and 2 private subnets, an Internet Gateway, and a NAT Gateway.  
-- **EKS Cluster:** Deploy a managed Kubernetes cluster with 2 worker nodes, IAM role-based access control, and auto-scaling.  
-- **RDS PostgreSQL:** Deploy a managed PostgreSQL instance in a private subnet with AWS KMS encryption.  
-- **S3 Storage:** Set up an S3 bucket for Terraform remote state with versioning and encryption.  
-- **IAM Roles & Policies:** Define least privilege IAM roles for EKS and Terraform CI/CD.  
 
-#### **GCP Resources:**  
-- **VPC:** Create a `/16` CIDR block with 2 public and 2 private subnets.  
-- **GKE Cluster:** Deploy a managed Kubernetes cluster with 2 worker nodes, IAM-based authentication, and auto-scaling.  
-- **Cloud SQL PostgreSQL:** Deploy a managed PostgreSQL instance in a private subnet with encryption and automated backups.  
-- **Cloud Storage:** Set up a GCS bucket for Terraform remote state with versioning and encryption.  
-- **IAM Policies:** Implement least privilege access control for Terraform deployments.  
+## Creating Your Infrastructure Code
+"Hey, could you help me write some Terraform code for setting up systems across both AWS and GCP? I want to make sure it follows best practices for security and can scale easily. It would be great if the code is organized into reusable modules and shows me important information about the resources it creates."
 
----
+### For AWS, I need:
+- A network with plenty of space (a /16 block) with some public and private areas, plus all the gateway stuff to make it work
+- A Kubernetes cluster with a couple of worker nodes that can grow when needed
+- A secure PostgreSQL database that's tucked away in a private area
+- A storage bucket for keeping track of infrastructure changes, with versioning so we don't lose anything
+- User roles that only have the permissions they absolutely need
 
-### **2️⃣ Architecture Diagram Generation**  
-*"Generate a high-level architecture diagram for a multi-cloud infrastructure deployment across AWS and GCP. The diagram should include labeled components such as VPCs, subnets, Kubernetes clusters, databases, storage solutions, IAM policies, and networking elements. Use color coding to distinguish AWS and GCP resources. Indicate network flows and dependencies with arrows. Security components such as VPC Peering, VPN, and firewall rules should also be visualized."*  
+### For GCP, I need similar stuff:
+- A good-sized network with public and private sections
+- A managed Kubernetes setup with a couple of nodes that can scale
+- A secure PostgreSQL database with automatic backups
+- A storage bucket for tracking infrastructure changes
+- User permissions that follow the principle of least privilege
 
----
+## Drawing It Out
+"Could you sketch out what this multi-cloud setup would look like? I'd like to see how all the pieces connect - the networks, Kubernetes clusters, databases, storage, and security components. Maybe use different colors for AWS and GCP stuff, and show me how data flows between everything."
 
-### **3️⃣ Security Policy Recommendations**  
-*"Generate security best practices for a multi-cloud infrastructure deployment using AWS and GCP. Focus on IAM least privilege access, encryption standards, firewall rules, and network segmentation. Ensure secure communication between AWS and GCP using VPC Peering or VPN, and recommend monitoring solutions such as AWS CloudTrail, AWS CloudWatch, Google Cloud Monitoring, and Google Cloud Audit Logs."*  
+## Keeping It Secure
+"What are the best ways to keep this multi-cloud setup secure? I'm especially interested in managing user permissions, encryption, firewall settings, and keeping different parts of the network separate. Also, how should I set up secure connections between AWS and GCP, and what monitoring tools should I use to keep an eye on everything?"
 
----
+## Setting Up Automated Deployment
+"I need a GitHub Actions workflow that can automatically deploy this multi-cloud setup. It should check the code for problems, look for security issues, deploy to both AWS and GCP, and then make sure everything is working properly."
 
-### **4️⃣ CI/CD Pipeline (GitHub Actions) Generation**  
-*"Generate a GitHub Actions workflow for a Terraform-based multi-cloud infrastructure deployment. The workflow should include the following stages:  
-1️⃣ Code scanning (Terraform linting, tfsec, checkov)  
-2️⃣ Security checks (IAM policy validation, misconfiguration detection)  
-3️⃣ Multi-cloud deployment (AWS & GCP)  
-4️⃣ Automated testing (infrastructure validation and health checks)."*  
+## Making Deployment Easy
+"Could you write me a script that makes deploying all this infrastructure easy? I want it to set up Terraform, log into both cloud providers, run security checks, apply all the changes, and keep good logs so I can troubleshoot if needed."
 
----
-
-### **5️⃣ Bash Script for Infrastructure Automation**  
-*"Generate a Bash script to automate Terraform deployment for AWS and GCP. The script should:  
-1️⃣ Initialize Terraform and validate configurations  
-2️⃣ Authenticate with AWS and GCP  
-3️⃣ Run security checks using tfsec and checkov  
-4️⃣ Apply Terraform configurations and output results  
-5️⃣ Log all deployment steps for debugging."*  
-
-These prompts will help you generate Terraform code, architecture diagrams, security policies, CI/CD workflows, and automation scripts for your project. 🚀
+These should help you get your cloud infrastructure up and running across both AWS and GCP without drowning in technical jargon. Everything's covered - from writing the code to drawing diagrams, securing it all, and automating the deployment.

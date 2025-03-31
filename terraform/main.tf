@@ -34,7 +34,6 @@ provider "google" {
 
 module "aws_vpc" {
   source              = "./modules/aws/vpc"
-  vpc_cidr = "${var.environment}-vpc"
   cidr_block          = var.aws_vpc_cidr # Change vpc_cidr to cidr_block
   environment         = var.environment
   availability_zones  = var.aws_availability_zones
