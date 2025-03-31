@@ -1,34 +1,29 @@
+# ./modules/gcp/cloudsql/main.tf
+
 resource "google_sql_database_instance" "main" {
   name             = var.instance_name
   database_version = var.database_version
-  project          = var.project_id
   region           = var.region
+  project          = var.project_id
 
   settings {
     tier = var.tier
-
+    
     backup_configuration {
       enabled = true
+      binary_log_enabled = true
     }
 
     ip_configuration {
       ipv4_enabled = false
-      private_network = var.vpc_id
+      private_network = var.vpc_id 
+    }
+
+    database_flags {
+      name  = "cloudsql.enable_pgaudit"
+      value = "on"
     }
   }
 
   deletion_protection = true
-}
-
-resource "google_sql_database" "database" {
-  name     = var.database_name
-  instance = google_sql_database_instance.main.name
-  project  = var.project_id
-}
-
-resource "google_sql_user" "user" {
-  name     = var.username
-  instance = google_sql_database_instance.main.name
-  password = var.password
-  project  = var.project_id
 }

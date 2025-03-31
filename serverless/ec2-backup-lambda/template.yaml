@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  EC2BackupLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: EC2BackupLambda
+      Runtime: python3.11
+      Handler: app.lambda_handler
+      CodeUri: .
+      MemorySize: 128
+      Timeout: 60
+      Role: arn:aws:iam::YOUR_ACCOUNT_ID:role/your-lambda-role
+      Environment:
+        Variables:
+          INSTANCE_ID: "your-instance-id"
+          S3_BUCKET_NAME: "your-s3-bucket"
+          SNS_TOPIC_ARN: "your-sns-topic"
+      Events:
+        ScheduledBackup:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 0 1,16 * ? *)"

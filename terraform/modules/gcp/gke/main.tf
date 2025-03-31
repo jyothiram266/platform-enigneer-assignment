@@ -1,9 +1,10 @@
-resource "google_container_cluster" "main" {
-  name               = var.cluster_name
-  location           = var.region
-  network           = var.vpc_id
-  subnetwork        = var.subnet_id
-  project           = var.project_id
+resource "google_container_cluster" "primary" {
+  name     = var.cluster_name
+  location = var.region
+  project  = var.project_id
+
+  network    = var.vpc_id
+  subnetwork = var.subnet_id
 
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -15,10 +16,10 @@ resource "google_container_cluster" "main" {
   }
 }
 
-resource "google_container_node_pool" "main" {
+resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-node-pool"
   location   = var.region
-  cluster    = google_container_cluster.main.name
+  cluster    = google_container_cluster.primary.name
   project    = var.project_id
   node_count = var.node_count
 
@@ -26,7 +27,9 @@ resource "google_container_node_pool" "main" {
     machine_type = var.machine_type
 
     oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform"
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/devstorage.read_only"
     ]
   }
 

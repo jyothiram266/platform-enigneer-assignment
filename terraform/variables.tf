@@ -1,3 +1,4 @@
+# Root Variables
 variable "environment" {
   description = "Environment name (e.g., prod, staging, dev)"
   type        = string
@@ -53,17 +54,17 @@ variable "aws_rds_instance_class" {
 }
 
 variable "aws_database_name" {
-  description = "Name for the RDS database"
+  description = "Name of the PostgreSQL database"
   type        = string
 }
 
 variable "aws_database_username" {
-  description = "Username for the RDS database"
+  description = "Master username for PostgreSQL"
   type        = string
 }
 
 variable "aws_database_password" {
-  description = "Password for the RDS database"
+  description = "Master password for PostgreSQL"
   type        = string
   sensitive   = true
 }
@@ -80,10 +81,10 @@ variable "gcp_region" {
   default     = "us-central1"
 }
 
-variable "gcp_subnet_cidrs" {
-  description = "CIDR blocks for GCP subnets"
-  type        = list(string)
-  default     = ["10.1.0.0/24", "10.1.1.0/24"]
+variable "gcp_vpc_cidr" {
+  description = "CIDR block for GCP VPC"
+  type        = string
+  default     = "172.16.0.0/16"
 }
 
 variable "gcp_gke_node_count" {
@@ -102,20 +103,4 @@ variable "gcp_cloudsql_tier" {
   description = "Machine tier for Cloud SQL"
   type        = string
   default     = "db-f1-micro"
-}
-
-variable "gcp_database_name" {
-  description = "Name for the Cloud SQL database"
-  type        = string
-}
-
-variable "gcp_database_username" {
-  description = "Username for the Cloud SQL database"
-  type        = string
-}
-
-variable "gcp_database_password" {
-  description = "Password for the Cloud SQL database"
-  type        = string
-  sensitive   = true
 }

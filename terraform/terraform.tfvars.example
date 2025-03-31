@@ -10,17 +10,14 @@ aws_public_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
 aws_eks_node_count = 2
 aws_eks_instance_type = "t3.medium"
 aws_rds_instance_class = "db.t3.medium"
-aws_database_name = "myapp"
+aws_database_name = "application"
 aws_database_username = "admin"
-aws_database_password = "your-secure-password"
+aws_database_password = "CHANGE_ME_BEFORE_APPLYING"
 
 # GCP Configuration
 gcp_project_id = "your-project-id"
 gcp_region = "us-central1"
-gcp_subnet_cidrs = ["10.1.0.0/24", "10.1.1.0/24"]
+gcp_vpc_cidr = "172.16.0.0/16"
 gcp_gke_node_count = 2
 gcp_gke_machine_type = "n1-standard-2"
 gcp_cloudsql_tier = "db-f1-micro"
-gcp_database_name = "myapp"
-gcp_database_username = "admin"
-gcp_database_password = "your-secure-password"
