@@ -7,7 +7,7 @@ This document describes the GitHub Actions workflow that handles continuous inte
 
 The workflow automates the deployment of infrastructure changes to both AWS and GCP clouds using Terraform. It includes linting, security scanning, and post-deployment health checks to ensure a reliable infrastructure deployment pipeline.
 
-![architecture](../screenshots/Screenshot%20from%202025-03-29%2018-51-03.png)
+![architecture](https://raw.githubusercontent.com/jyothiram266/platform-enigneer-assignment/refs/heads/master/screenshots/Screenshot%20from%202025-03-29%2018-51-03.png)
 
 ## Workflow Triggers
 
